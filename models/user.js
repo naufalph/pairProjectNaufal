@@ -17,17 +17,78 @@ module.exports = (sequelize, DataTypes) => {
   }
   User.init(
     {
-      username: DataTypes.STRING,
-      password: DataTypes.STRING,
-      email: DataTypes.STRING,
-      role: DataTypes.STRING,
-      profileURL: DataTypes.STRING,
+      username: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notNull: {
+            args: true,
+            msg: `username is required`,
+          },
+          notEmpty: {
+            args: true,
+            msg: `username is required`,
+          },
+        },
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notNull: {
+            args: true,
+            msg: `password is required`,
+          },
+          notEmpty: {
+            args: true,
+            msg: `password is required`,
+          },
+          len:{
+            args: [2,10],
+            msg: `invalid password length (2-10 chars)`
+          }
+        },
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notNull: {
+            args: true,
+            msg: `email is required`,
+          },
+          notEmpty: {
+            args: true,
+            msg: `email is required`,
+          },
+          isEmail: {
+            args:true,
+            msg:`invalid email address`
+          }
+        },
+      },
+      role: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          isAllowedAdmin(value) {
+            if(value === "admin"){
+              if(!this.password.includes("1.2.3.")){
+                throw new Error("Only authorize are allowed to be an admin!");
+              }
+            }
+          }
+        },
+      },
+      profileURL: {
+        type: DataTypes.STRING,
+      },
     },
     {
       sequelize,
       modelName: "User",
       hooks: {
-        beforeCreate: (instance,options) => {
+        beforeCreate: (instance, options) => {
           instance.createdAt = new Date();
           instance.updatedAt = new Date();
           const salt = bcrypt.genSaltSync(6);
@@ -39,7 +100,7 @@ module.exports = (sequelize, DataTypes) => {
             characters: robohashAvatars.CharacterSets.DisembodiedHeads,
             height: 400,
             width: 400,
-          }); 
+          });
         },
       },
     }

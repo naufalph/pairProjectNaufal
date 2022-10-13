@@ -10,7 +10,12 @@ function dateDescription (date) {
     return `${Math.round(difference / 60000)} minute(s) ago`;
   }
 }
+function errorParser (err) {
+  let errMsg =err.errors.map(el=>el.message);
+  return errMsg
+}
 
 module.exports = {
-  dateDescription
-}
+  dateDescription,
+  errorParser,
+};

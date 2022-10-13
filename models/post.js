@@ -37,6 +37,15 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Post',
+    hooks: {
+      beforeCreate:(instance)=>{
+        instance.createdAt = new Date();
+        instance.updatedAt = new Date();
+        instance.upvote = 0;
+        instance.TagId = +instance.TagId;
+        instance.UserId = +instance.UserId;
+      }
+    }
   });
   return Post;
 };

@@ -12,6 +12,8 @@
   <div class="main-content">
     <img src="<%= data.imageURL %>"   alt="<%= data.title %>" >
     <p><%= data.content %> </p>
+    <a href="/post/<%= data.id %>/<%= data.User.id %>/edit" >Edit</a>
+    <a href="/post/<%= data.id %>/<%= data.User.id %>/delete" >Delete</a>
     <br>
     <div class="comment-section">
       <% if (data.Comments.length!==0) { %>
@@ -21,7 +23,7 @@
               <td class="profile"><img src="<%= el.User.profileURL %>" alt="" class="prof-pict"> <br><%= el.User.username %> </td> 
               <td><%= el.content %> </td>
               <td style="width:50px ;"><%= dateDescription(el.createdAt) %> </td>
-              <td style="width:40px ;"><a href="/post/<%= data.id %>/comment/<%= el.User.id %>/delete"  >Delete</a> </td>
+              <td style="width:40px ;"><a href="/post/<%= data.id %>/comment/<%= el.User.id %>/<%= el.id %>/delete"  >Delete</a> </td>
             </tr>
           <% }) %>
         </table> 

@@ -1,11 +1,10 @@
 const { Op } = require("sequelize");
 const { User, Post, Tag, Comment } = require("../models");
 const bcrypt = require("bcryptjs");
-const {dateDescription} = require("../helpers/formatter.js");
+const { dateDescription, errorParser } = require("../helpers/formatter.js");
 
 class Controller {
   static home(req, res) {
-    console.log(req.session);
     let options = {
       include: [
         {
@@ -67,7 +66,9 @@ class Controller {
       });
   }
   static logout(req, res) {
-    delete req.session.user;
+    delete req.session.userId;
+    delete req.session.role;
+    delete req.session.username;
     res.redirect("/");
   }
   static register(req, res) {
@@ -85,12 +86,73 @@ class Controller {
         res.redirect("/");
       })
       .catch((err) => {
-        res.send(err);
+        if (err.name === "SequelizeValidationError") {
+          let errMsg = errorParser(err);
+          return res.send(errMsg);
+        } else {
+          return res.send(err);
+        }
       });
   }
   static postAdd(req, res) {
     // console.log(req.session);
-    res.render("post-add");
+    const error = req.query.error;
+    Tag.findAll()
+      .then((data) => {
+        res.render("post-add", { data, error });
+      })
+      .catch((err) => {
+        res.send(err);
+      });
+  }
+  static postPost(req, res) {
+    const userId = req.session.userId;
+    const postInfo = req.body;
+    postInfo.UserId = userId;
+    Post.create(postInfo)
+      .then(() => {
+        res.redirect("/");
+      })
+      .catch((err) => {
+        res.send(err);
+      });
+  }
+  static postEdit(req, res) {
+    const postId = +req.params.id;
+    const error = req.query.error;
+
+    Promise.all([Post.findOne({ where: { id: postId } }), Tag.findAll()])
+      .then((data) => {
+        const postData = data[0];
+        const tagData = data[1];
+        res.render("post-edit", { postData, tagData, error });
+      })
+      .catch((err) => {
+        res.send(err);
+      });
+  }
+  static postDel(req, res) {
+    const postId = +req.params.id;
+    Post.destroy({
+      where: { id: postId },
+    })
+      .then(() => {
+        res.redirect(`/`);
+      })
+      .catch((err) => {
+        res.send(err);
+      });
+  }
+  static postEditPost(req, res) {
+    const newPost = req.body;
+    const postId = req.params.id;
+    Post.update(newPost, { where: { id: postId } })
+      .then(() => {
+        res.redirect(`/post/${postId}`);
+      })
+      .catch((err) => {
+        res.send(err);
+      });
   }
   static postDetail(req, res) {
     const postId = +req.params.id;
@@ -134,11 +196,28 @@ class Controller {
         res.send(err);
       });
   }
+  static commentDel(req, res) {
+    const commentId = req.params.commentId;
+    const postId = req.params.id;
+    Comment.destroy({
+      where: { id: commentId },
+    })
+      .then(() => {
+        res.redirect(`/post/${postId}`);
+      })
+      .catch((err) => {
+        res.send(err);
+      });
+  }
   static isLoginDel(req, res, next) {
-    const requiredId = +req.params.id;
+    const requiredId = +req.params.userId;
+
     if (!req.session.userId) {
       return res.redirect("/login?error=login;is;required");
-    } else if (req.session.userId === requiredId) {
+    } else if (
+      req.session.userId === requiredId ||
+      req.session.role === "admin"
+    ) {
       next();
     } else {
       return res.redirect("/login?error=access;violation");
@@ -147,8 +226,7 @@ class Controller {
   static isLogin(req, res, next) {
     if (!req.session.userId) {
       return res.redirect("/login?error=login;is;required");
-    } 
-    else {
+    } else {
       next();
     }
   }

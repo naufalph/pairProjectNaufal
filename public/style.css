@@ -1,0 +1,39 @@
+*{
+  font-family: 'Times New Roman', Times, serif;
+}
+nav {
+  padding: 5px;
+  margin: 5px;
+}
+nav .link {
+  padding: 2mm;
+  text-decoration: none;
+}
+table,th,td{
+  border: 1px solid red;
+}
+.main-content table {
+  width: 80%;
+  margin: auto;
+}
+.log-in {
+  border: 1px solid black;
+  border-radius: 10px;
+}
+.input-box {
+  margin-top: 10mm;
+  margin-bottom: 10mm;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+.error {
+  color: red;
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+.prof-pict {
+  width: 40px;
+}
+.profile {
+  width: 50px;
+}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/style.css">
+  <title>Horror Story Home</title>
+</head>
+<body>
+  <%- include("./partials/nav.ejs")  %> 
+  <div class="main-content">
+    <img src="<%= data.imageURL %>"   alt="<%= data.title %>" >
+    <p><%= data.content %> </p>
+    <a href="/post/<%= data.id %>/<%= data.User.id %>/edit" >Edit</a>
+    <a href="/post/<%= data.id %>/<%= data.User.id %>/delete" >Delete</a>
+    <br>
+    <div class="comment-section">
+      <% if (data.Comments.length!==0) { %>
+        <table>
+          <% data.Comments.forEach(el => { %>
+            <tr>
+              <td class="profile"><img src="<%= el.User.profileURL %>" alt="" class="prof-pict"> <br><%= el.User.username %> </td> 
+              <td><%= el.content %> </td>
+              <td style="width:50px ;"><%= dateDescription(el.createdAt) %> </td>
+              <td style="width:40px ;"><a href="/post/<%= data.id %>/comment/<%= el.User.id %>/<%= el.id %>/delete"  >Delete</a> </td>
+            </tr>
+          <% }) %>
+        </table> 
+      <% } %>
+      <form action="/post/<%= data.id %>/comment" method="post">
+        <div class="input-box">
+          <textarea id="content" name="content" rows="2" cols="70" placeholder="insert your comment here ..."></textarea>
+          <input type="submit" value="Post">
+        </div>
+
+      </form>
+    </div>
+  </div>
+  
+</body>
+</html>
